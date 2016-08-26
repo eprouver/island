@@ -14,35 +14,39 @@ angular.module('islandApp')
       controllerAs: 'islandCtrl',
       controller: ['$scope', '$element', function($scope, $element) {
         var self = this;
-        self.margin = 44;
-        self.size = 1000;
+        self.margin = 10;
+        self.size = 500;
         self.seed = 1;
         self.lowerBound = 0.125;
-        self.higherBound = 0.95
+        self.higherBound = 0.95;
+        self.breaks = 1;
+        self.margin = 10;
         self.outterPoints = 10;
         self.coastVar = 30;
         self.roadPoints = 10;
         self.breaks = 1;
+        self.random = false;
 
         self.zoom = 1;
-
-        var roadMin = 0.4;
-        var canvasSize = self.size + self.margin;
 
         var colors = {
           ocean: '#0183A6',
           water: '#00bcf0',
-          sand: 'yellow',
+          sand: '#F4F784',
           path: '#f5941d',
           grass: '#53990c'
         }
+
+        var roadMin = 0.4;
+        var canvasSize = self.size + self.margin;
 
         var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
         var targetCtx = targetCanvas[0].getContext('2d');
         var holder = $element.find('#island-holder')
 
+        var seed = self.seed;
         function random() {
-          var x = Math.sin(self.seed++) * 10000;
+          var x = Math.sin(seed++) * 10000;
           return x - Math.floor(x);
         }
 
@@ -78,7 +82,16 @@ angular.module('islandApp')
         }
 
         self.drawIsland = function(x, y, size) {
+          seed = self.seed;
+          if(self.random){
+            seed = self.seed = Math.random();
+          }
           holder.empty();
+          canvasSize = self.size + self.margin;
+
+          targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
+          targetCtx = targetCanvas[0].getContext('2d');
+
           var center = new Victor(x,y);
           targetCtx.save();
           targetCtx.fillStyle = colors.ocean;
@@ -96,26 +109,31 @@ angular.module('islandApp')
             targetCtx.fillRect(center.x, center.y, 5, 5);
 
             //Generate points for coastline
-            for (var i = 0; i < self.outterPoints; i++) {
+          Array.apply(null, { length: self.outterPoints }).forEach(function(v, i){
               var vic = new Victor(0, 1)
                 .rotate(Math.PI * 2 * (i / self.outterPoints))
                 .multiplyScalar((size / 2) * randomBetween(self.lowerBound, self.higherBound))
                 .add(center);
 
+
+
               //Add a middle point
               if (outterPath.length) {
-                var last = _(outterPath).last().clone();
-                var middle = getMiddlePoint(last, vic).rotateDeg(randomBetween(-self.coastVar / 5, self.coastVar / 5));
-                outterPath.push(middle);
-              }
+                for(var j = 0; j < 2; j++){
+                  var last = _(outterPath).last().clone();
+                  var middle = getMiddlePoint(last, vic).rotateDeg(randomBetween(-self.coastVar / 5, self.coastVar / 5));
+                  outterPath.push(middle);
+                }
 
-              outterPath.push(vic);
-            }
+              }
+                              outterPath.push(vic);
+
+            });
 
             //Create CoastLine
             _.each(outterPath, function(p, index) {
               var dest = outterPath[index + 1 < outterPath.length ? index + 1 : 0];
-              var iterations = dest.clone().subtract(p).length() / 15;
+              var iterations = dest.clone().subtract(p).length() / (size / 65);
               var destVecStep = dest.clone().subtract(p).divideScalar(iterations);
 
               for (var i = 0; i < iterations; i++) {
@@ -146,13 +164,8 @@ angular.module('islandApp')
               //Check all coastal points that are the same angle direction from center
               var roadMax = getBoundingDistance(pAngle, coastLine, center);
 
-              // targetCtx.restore();
-
               p
-              //Scale out the point
-              //.multiplyScalar(randomBetween((size/2) * roadMin, roadMax * 0.9))
-              //.multiplyScalar((((Math.sin(Math.PI * 2 * perc * (random() * 10)) + 1) * 0.5) * (roadMax/4)) + roadMax * 0.55)
-                .multiplyScalar(roadMax * randomBetween(0.6, 1))
+              .multiplyScalar(roadMax * 0.99 )
                 .add(center)
 
               roadPath.push(p);
@@ -196,23 +209,33 @@ angular.module('islandApp')
           })()
 
           //Draw Land
+            //shallows
           targetCtx.beginPath();
           targetCtx.moveTo(coastLine[0].x, coastLine[0].y);
-          _(coastLine).each(function(p) {
-            targetCtx.lineTo(p.x, p.y);
-          })
+
+          var i = 0;
+             for (i = 1; i < coastLine.length - 2; i ++)
+             {
+                var xc = (coastLine[i].x + coastLine[i + 1].x) / 2;
+                var yc = (coastLine[i].y + coastLine[i + 1].y) / 2;
+                targetCtx.quadraticCurveTo(coastLine[i].x, coastLine[i].y, xc, yc);
+             }
+           targetCtx.quadraticCurveTo(coastLine[i].x, coastLine[i].y, coastLine[i+1].x,coastLine[i+1].y);
+
           targetCtx.closePath();
-          targetCtx.lineWidth = 20;
+          targetCtx.lineWidth = size / 20;
           targetCtx.strokeStyle = colors.water;
           targetCtx.stroke();
 
+          //sand
           targetCtx.beginPath();
           targetCtx.moveTo(coastLine[0].x, coastLine[0].y);
+
           _(coastLine).each(function(p) {
             targetCtx.lineTo(p.x, p.y);
           })
           targetCtx.closePath();
-          targetCtx.lineWidth = 10;
+          targetCtx.lineWidth = size / 80;
           targetCtx.strokeStyle = colors.sand;
           targetCtx.stroke();
           targetCtx.fillStyle = colors.grass;
@@ -223,12 +246,34 @@ angular.module('islandApp')
           targetCtx.beginPath();
           targetCtx.moveTo(drawnPath[0].x, drawnPath[0].y);
 
-          _(drawnPath).each(function(p, i) {
-            targetCtx.lineTo(p.x, p.y);
-          })
+          var i = 0;
+             for (i = 1; i < drawnPath.length - 2; i ++)
+             {
+
+                if(drawnPath[i]._bend){
+                  var xc = (drawnPath[i].x + drawnPath[i + 1].x) / 2;
+                  var yc = (drawnPath[i].y + drawnPath[i + 1].y) / 2;
+                  targetCtx.quadraticCurveTo(drawnPath[i].x, drawnPath[i].y, xc, yc);
+                }else{
+                  targetCtx.lineTo(drawnPath[i].x, drawnPath[i].y);
+                }
+
+             }
+
+             if(drawnPath[i]._bend){
+               targetCtx.quadraticCurveTo(drawnPath[i].x, drawnPath[i].y, drawnPath[i+1].x,drawnPath[i+1].y);
+             }else{
+               targetCtx.lineTo(drawnPath[i].x, drawnPath[i].y);
+               targetCtx.lineTo(drawnPath[i+1].x, drawnPath[i+1].y)
+             }
+
+
+          // _(drawnPath).each(function(p, i) {
+          //   targetCtx.lineTo(p.x, p.y);
+          // })
 
           targetCtx.closePath();
-          targetCtx.lineWidth = 5;
+          targetCtx.lineWidth = size / 200;
           targetCtx.strokeStyle = colors.path;
           targetCtx.stroke();
 
@@ -237,11 +282,10 @@ angular.module('islandApp')
             if (!p._bend) {
               targetCtx.save();
               targetCtx.fillStyle = 'black';
-              targetCtx.fillRect(p.x - 5, p.y - 5, 10, 10);
+              targetCtx.fillRect(p.x - (size / 200), p.y - (size / 200), size / 100, size/ 100);
               targetCtx.restore();
             }
           })
-
 
           //break the canvas into pieces
           var block = (canvasSize/ self.breaks);

@@ -1,12 +1,12 @@
 <div>
 
   <div class="row">
-    <div class="col-xs-6">
+    <div class="col-xs-8">
       <div id="island-scroller">
         <div id="island-holder" ng-style="{transform: 'scale('+islandCtrl.zoom+')'}"></div>
       </div>
     </div>
-    <div class="col-xs-6">
+    <div class="col-xs-4">
       <div class="">
         <label>Size
           <input ng-model="islandCtrl.size" type="number"/>
@@ -14,7 +14,8 @@
       </div>
       <div class="">
         <label>seed
-          <input ng-model="islandCtrl.seed" type="number"/>
+          <input ng-model="islandCtrl.seed" ng-disabled="islandCtrl.random" type="number"/>
+          <input ng-model="islandCtrl.random" type="checkbox"/>
         </label>
       </div>
       <div class="">
@@ -37,7 +38,32 @@
       </div>
       <div class="">
         <label>Zoom
-          <input ng-model="islandCtrl.zoom" type="range" min="0.01" max="2" step="0.01"/>
+          <input ng-model="islandCtrl.zoom" type="range" min="0.01" max="6" step="0.01"/>
+
+        </label>
+      </div>
+
+      <div class="">
+        <label>lowerBound
+          <input ng-model="islandCtrl.lowerBound" min="0.1" max="2" step="0.01" type="number"/>
+
+        </label>
+      </div>
+      <div class="">
+        <label>higherBound
+          <input ng-model="islandCtrl.higherBound" min="0.1" max="2" step="0.01" type="number"/>
+
+        </label>
+      </div>
+      <div class="">
+        <label>margin
+          <input ng-model="islandCtrl.margin" type="number"/>
+
+        </label>
+      </div>
+      <div class="">
+        <label>breaks
+          <input ng-model="islandCtrl.breaks" type="number"/>
 
         </label>
       </div>
