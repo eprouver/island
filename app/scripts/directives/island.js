@@ -29,8 +29,16 @@ angular.module('islandApp')
         self.random = false;
         self.scaler = 1;
         self.zoom = 1;
-        self.roadPath = [];
-        self.map = true;
+        self.map = false;
+
+        var testColors = {
+          ocean: 'white',
+          water: 'white',
+          sand: 'black',
+          path: '#ccc',
+          grass: 'white',
+          marker: 'black'
+        }
 
         var realColors = {
           ocean: '#0183A6',
@@ -92,7 +100,10 @@ angular.module('islandApp')
 
         }
 
-        function drawMaps(coastLine, drawnPath, size, colors, isMap, targetCanvas, targetCtx, holder) {
+        function drawMaps(coastLine, drawnPath, size, colors, targetCanvas, targetCtx, holder, options) {
+          if(!options){
+            options = {};
+          }
 
           targetCtx.save();
           targetCtx.fillStyle = colors.ocean;
@@ -121,7 +132,7 @@ angular.module('islandApp')
           targetCtx.beginPath();
           targetCtx.moveTo(coastLine[0].x, coastLine[0].y);
 
-          if (isMap) {
+          if (options.smooth) {
             var i = 0;
             for (i = 1; i < coastLine.length - 2; i++) {
               var xc = (coastLine[i].x + coastLine[i + 1].x) / 2;
@@ -144,7 +155,7 @@ angular.module('islandApp')
 
 
           //Draw Road
-          if (isMap || !self.map) {
+          if (options.road) {
             targetCtx.beginPath();
             targetCtx.moveTo(drawnPath[0].x, drawnPath[0].y);
 
@@ -182,7 +193,7 @@ angular.module('islandApp')
             }
           })
 
-          var innerHolder = $('<div>').addClass(isMap ? 'island-overlay' : 'map-overlay');
+          var innerHolder = $('<div>').addClass(options.class);
           //break the canvas into pieces
           var block = (targetCanvas[0].width / self.breaks);
           for (var c = 0; c < self.breaks; c++) {
@@ -197,17 +208,15 @@ angular.module('islandApp')
             }
           }
 
-          holder.append(innerHolder)
-          if (isMap) {
-            self.paper = innerHolder.oriDomi({
-              vPanels: 6
-            }).oriDomi(true);
-            self.paper.accordion(0, 'right');
-          }
-
+          holder.append(innerHolder);
+          return innerHolder;
         };
 
-        self.drawIsland = function(x, y, size) {
+        self.generateIsland = function(x, y, size) {
+
+          var islandData = {
+            roadPath: []
+          };
 
           var center = new Victor(x, y);
           seed = self.seed;
@@ -215,7 +224,7 @@ angular.module('islandApp')
             seed = self.seed = Math.random();
           }
 
-          var coastLine = (function defineCoast() {
+          islandData.coastLine = (function defineCoast() {
             var outterPath = [];
             var coastLine = [];
 
@@ -229,7 +238,6 @@ angular.module('islandApp')
                 .add(center);
 
 
-
               //Add a middle point
               if (outterPath.length) {
                 for (var j = 0; j < 2; j++) {
@@ -237,10 +245,8 @@ angular.module('islandApp')
                   var middle = getMiddlePoint(last, vic).rotateDeg(randomBetween(-self.coastVar / 5, self.coastVar / 5));
                   outterPath.push(middle);
                 }
-
               }
               outterPath.push(vic.unfloat());
-
             });
 
             //Create CoastLine
@@ -257,86 +263,91 @@ angular.module('islandApp')
               }
             });
 
+            islandData.drawnPath = (function defineRoads() {
+              islandData.roadPath = [];
+              //Inner Path
+              for (var i = 0; i < self.roadPoints; i++) {
+                //determine which coastline points you are between and select the one with the smaller distance from center
+                var angle = ((i) / self.roadPoints) * Math.PI * 2;
+
+                //create a vector rotated & scaled to somewhere on that length
+                var p = new Victor(0, 1)
+                  .rotate(angle)
+
+                var pAngle = p.verticalAngle();
+
+                //Check all coastal points that are the same angle direction from center
+                var roadMax = getBoundingDistance(pAngle, coastLine, center);
+
+                p.multiplyScalar(roadMax * 0.99)
+                  .add(center)
+
+                islandData.roadPath.push(p.unfloat());
+              }
+
+              //Add Middle Road Bends
+              var drawnPath = [];
+
+              function moveMiddle(start, end) {
+                var middle = getMiddlePoint(start, end);
+                var pAngle = middle.clone().subtract(center).verticalAngle();
+                var roadMax = getBoundingDistance(pAngle, coastLine, center);
+
+                if (middle.clone().subtract(center).length() > roadMax) {
+                  while (middle.clone().subtract(center).length() > roadMax) {
+                    middle.add(center.clone().subtract(middle).multiplyScalar(0.1))
+                  }
+
+                  return middle;
+                }
+              }
+
+              _(islandData.roadPath).each(function(p, i) {
+                drawnPath.push(p.unfloat());
+                if (islandData.roadPath[i + 1]) {
+                  var middle = getMiddlePoint(p, islandData.roadPath[i + 1]);
+                  var one = moveMiddle(p, middle);
+                  var two = moveMiddle(middle, islandData.roadPath[i + 1]);
+                  if (one) {
+                    one._bend = true;
+                    drawnPath.push(one);
+                  }
+                  if (two) {
+                    two._bend = true;
+                    drawnPath.push(two);
+                  }
+                }
+              });
+
+              return drawnPath;
+            })();
             return coastLine;
-
           })();
+          return islandData;
+        }
 
-          var drawnPath = (function defineRoads() {
-            self.roadPath = [];
-            //Inner Path
-            for (var i = 0; i < self.roadPoints; i++) {
-              //determine which coastline points you are between and select the one with the smaller distance from center
-              var angle = ((i) / self.roadPoints) * Math.PI * 2;
-
-              //create a vector rotated & scaled to somewhere on that length
-              var p = new Victor(0, 1)
-                .rotate(angle)
-
-              var pAngle = p.verticalAngle();
-
-              //Check all coastal points that are the same angle direction from center
-              var roadMax = getBoundingDistance(pAngle, coastLine, center);
-
-              p.multiplyScalar(roadMax * 0.99)
-                .add(center)
-
-              self.roadPath.push(p.unfloat());
-            }
-
-            //Add Middle Road Bends
-            var drawnPath = [];
-
-            function moveMiddle(start, end) {
-              var middle = getMiddlePoint(start, end);
-              var pAngle = middle.clone().subtract(center).verticalAngle();
-              var roadMax = getBoundingDistance(pAngle, coastLine, center);
-
-              if (middle.clone().subtract(center).length() > roadMax) {
-                while (middle.clone().subtract(center).length() > roadMax) {
-                  middle.add(center.clone().subtract(middle).multiplyScalar(0.1))
-                }
-
-                return middle;
-              }
-            }
-
-            _(self.roadPath).each(function(p, i) {
-              drawnPath.push(p.unfloat());
-              if (self.roadPath[i + 1]) {
-                var middle = getMiddlePoint(p, self.roadPath[i + 1]);
-                var one = moveMiddle(p, middle);
-                var two = moveMiddle(middle, self.roadPath[i + 1]);
-                if (one) {
-                  one._bend = true;
-                  drawnPath.push(one);
-                }
-                if (two) {
-                  two._bend = true;
-                  drawnPath.push(two);
-                }
-              }
-            });
-
-            return drawnPath;
-          })();
-
+        self.drawIsland = function(islandData){
           holder.empty();
           canvasSize = self.size + self.margin;
 
           var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
           var targetCtx = targetCanvas[0].getContext('2d');
-          drawMaps(coastLine, drawnPath, self.size, realColors, false, targetCanvas, targetCtx, holder)
+          drawMaps(islandData.coastLine, islandData.drawnPath, self.size, testColors, targetCanvas, targetCtx, holder, {road: true, smooth: false, class: 'island-overlay'})
 
           if(self.map){
             //create a second overlay canvas
             var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
             var targetCtx = targetCanvas[0].getContext('2d');
-            drawMaps(coastLine, drawnPath, self.size, mapColors, true, targetCanvas, targetCtx, holder)
-          }
+            var innerHolder = drawMaps(islandData.coastLine, islandData.drawnPath, self.size, mapColors, targetCanvas, targetCtx, holder, {road: true, smooth: true, class: 'map-overlay'})
 
+            self.paper = innerHolder.oriDomi({
+              vPanels: 6
+            }).oriDomi(true);
+            self.paper.accordion(0, 'right');
+          }
         }
 
-        self.drawIsland(self.size * 0.5, self.size * 0.5, self.size);
+        self.drawIsland(self.generateIsland(self.size * 0.5, self.size * 0.5, self.size));
         //self.drawIsland(new Victor(100, 100), 100);
 
       }]

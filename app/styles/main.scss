@@ -2,8 +2,10 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 
 // bower:scss
 @import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
-
 // endbower
+
+/* color scheme: http://www.color-hex.com/color-palette/1523 */
+
 #island-scroller {
   width: 100%;
   height: 80vh;
@@ -16,10 +18,10 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
   }
   #island-holder {
     transform-origin: 0 0;
-    .island-overlay {
+    .map-overlay {
       transform: translateZ(1000px);
     }
-    .map-overlay {
+    .island-overlay {
       position: absolute;
       top: 0;
       left: 0;

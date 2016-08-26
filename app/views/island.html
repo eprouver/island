@@ -73,7 +73,6 @@
 
         </label>
       </div>
-
       <div class="">
         <label>Map
           <input ng-model="islandCtrl.map" type="checkbox"/>
@@ -81,12 +80,11 @@
         </label>
       </div>
 
-      <div class="btn btn-lg btn-success" ng-click="islandCtrl.drawIsland(islandCtrl.size / 2, islandCtrl.size / 2, islandCtrl.size)">
+      <div class="btn btn-lg btn-success" ng-click="islandCtrl.drawIsland(islandCtrl.generateIsland(islandCtrl.size / 2, islandCtrl.size / 2, islandCtrl.size))">
         Redraw
       </div>
     </div>
   </div>
 
   <br/>
-  {{islandCtrl.roadPath}}
 </div>
