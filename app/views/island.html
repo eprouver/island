@@ -1,0 +1,53 @@
+<div>
+
+  <div class="row">
+    <div class="col-xs-6">
+      <div id="island-scroller">
+        <div id="island-holder" ng-style="{transform: 'scale('+islandCtrl.zoom+')'}"></div>
+      </div>
+    </div>
+    <div class="col-xs-6">
+      <div class="">
+        <label>Size
+          <input ng-model="islandCtrl.size" type="number"/>
+        </label>
+      </div>
+      <div class="">
+        <label>seed
+          <input ng-model="islandCtrl.seed" type="number"/>
+        </label>
+      </div>
+      <div class="">
+        <label>outterPoints
+          <input ng-model="islandCtrl.outterPoints" type="number"/>
+
+        </label>
+      </div>
+      <div class="">
+        <label>coastVar
+          <input ng-model="islandCtrl.coastVar" type="number"/>
+
+        </label>
+      </div>
+      <div class="">
+        <label>roadPoints
+          <input ng-model="islandCtrl.roadPoints" type="number"/>
+
+        </label>
+      </div>
+      <div class="">
+        <label>Zoom
+          <input ng-model="islandCtrl.zoom" type="range" min="0.01" max="2" step="0.01"/>
+
+        </label>
+      </div>
+
+      <div class="btn btn-lg btn-success" ng-click="islandCtrl.drawIsland(islandCtrl.size / 2, islandCtrl.size / 2, islandCtrl.size)">
+        Redraw
+      </div>
+    </div>
+  </div>
+
+  <br/>
+
+</div>
