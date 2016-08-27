@@ -35,3 +35,40 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
     }
   }
 }
+
+#island-roadmap{
+  position:relative;
+  background: #0183A6;
+  #map-position {
+    transform: translateZ(1000px);
+  }
+  #island-detail-position {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .map-canvas{
+    border: 5px solid #E2C792;
+    background: #c4ac7c;
+  }
+
+  .positioning-holder{
+    position:relative;
+
+    .map-overlay{
+      position:absolute;
+      top:0;
+      left: 0;
+    }
+
+    .island-selector{
+      position:absolute;
+    }
+  }
+
+  .oridomi-active{
+    pointer-events: none;
+  }
+
+}

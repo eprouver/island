@@ -10,13 +10,13 @@ angular.module('islandApp')
   .directive('island', function() {
 
     return {
-      templateUrl: '/views/island.html',
+      templateUrl: '/views/many.html',
       restrict: 'E',
       controllerAs: 'islandCtrl',
       controller: ['$scope', '$element', function($scope, $element) {
         var self = this;
-        self.margin = 10;
-        self.size = 600;
+        self.margin = 50;
+        self.size = 800;
         self.seed = 1;
         self.lowerBound = 0.125;
         self.higherBound = 0.95;
@@ -24,12 +24,12 @@ angular.module('islandApp')
         self.margin = 10;
         self.outterPoints = 10;
         self.coastVar = 30;
-        self.roadPoints = 10;
-        self.breaks = 1;
+        self.breaks = 2;
         self.random = false;
         self.scaler = 1;
         self.zoom = 1;
         self.map = false;
+        self.lineThickness = self.size / 2;
 
         var testColors = {
           ocean: 'white',
@@ -61,7 +61,6 @@ angular.module('islandApp')
         var roadMin = 0.4;
         var canvasSize = self.size + self.margin;
 
-        var holder = $element.find('#island-holder')
         var seed = self.seed;
 
         function random() {
@@ -87,28 +86,25 @@ angular.module('islandApp')
 
             return Math.abs(vAngle - pAngle) < 0.2;
           }).map(function(v) {
-
-            if (i !== undefined) {
-              targetCtx.save();
-              targetCtx.fillStyle = ['red', 'green', 'blue'][i % 3];
-              targetCtx.fillRect(v.x, v.y, 5, 5);
-              targetCtx.restore();
-            }
-
             return v.clone().subtract(center).length();
           }).min().value();
 
         }
 
-        function drawMaps(coastLine, drawnPath, size, colors, targetCanvas, targetCtx, holder, options) {
-          if(!options){
+        function drawMaps(coastLine, drawnPath, lineThickness, colors, targetCanvas, targetCtx, holder, options) {
+          if (!options) {
             options = {};
           }
 
           targetCtx.save();
-          targetCtx.fillStyle = colors.ocean;
-          targetCtx.fillRect(0, 0, targetCanvas[0].width, targetCanvas[0].height);
-          targetCtx.restore();
+
+          //Draw ocean
+          if (options.ocean) {
+            targetCtx.save();
+            targetCtx.fillStyle = colors.ocean;
+            targetCtx.fillRect(0, 0, targetCanvas[0].width, targetCanvas[0].height);
+            targetCtx.restore();
+          }
 
           //Draw Land
           //shallows
@@ -124,7 +120,7 @@ angular.module('islandApp')
           targetCtx.quadraticCurveTo(coastLine[i].x, coastLine[i].y, coastLine[i + 1].x, coastLine[i + 1].y);
 
           targetCtx.closePath();
-          targetCtx.lineWidth = size / 20;
+          targetCtx.lineWidth = lineThickness / 20;
           targetCtx.strokeStyle = colors.water;
           targetCtx.stroke();
 
@@ -147,7 +143,7 @@ angular.module('islandApp')
           }
 
           targetCtx.closePath();
-          targetCtx.lineWidth = size / 80;
+          targetCtx.lineWidth = lineThickness / 80;
           targetCtx.strokeStyle = colors.sand;
           targetCtx.stroke();
           targetCtx.fillStyle = colors.grass;
@@ -155,7 +151,7 @@ angular.module('islandApp')
 
 
           //Draw Road
-          if (options.road) {
+          if (options.road && drawnPath.length > 1) {
             targetCtx.beginPath();
             targetCtx.moveTo(drawnPath[0].x, drawnPath[0].y);
 
@@ -174,55 +170,62 @@ angular.module('islandApp')
               targetCtx.quadraticCurveTo(drawnPath[i].x, drawnPath[i].y, drawnPath[i + 1].x, drawnPath[i + 1].y);
             } else {
               targetCtx.lineTo(drawnPath[i].x, drawnPath[i].y);
-              targetCtx.lineTo(drawnPath[i + 1].x, drawnPath[i + 1].y)
+              if (drawnPath[i + 1]) {
+                targetCtx.lineTo(drawnPath[i + 1].x, drawnPath[i + 1].y);
+              }
             }
 
             targetCtx.closePath();
-            targetCtx.lineWidth = (size / 200);
+            targetCtx.lineWidth = (lineThickness / 200);
             targetCtx.strokeStyle = colors.path;
             targetCtx.stroke();
           }
 
           //Draw POIs
-          _(drawnPath).each(function(p, i) {
-            if (!p._bend) {
-              targetCtx.save();
-              targetCtx.fillStyle = colors.marker;
-              targetCtx.fillRect(p.x - (size / 200), p.y - (size / 200), size / 100, size / 100);
-              targetCtx.restore();
-            }
-          })
-
-          var innerHolder = $('<div>').addClass(options.class);
-          //break the canvas into pieces
-          var block = (targetCanvas[0].width / self.breaks);
-          for (var c = 0; c < self.breaks; c++) {
-            var row = $('<div class="tile-holder">');
-            innerHolder.append(row);
-            for (var r = 0; r < self.breaks; r++) {
-              var canvas = document.createElement('canvas');
-              canvas.height = block;
-              canvas.width = block;
-              canvas.getContext('2d').drawImage(targetCanvas[0], r * block, c * block, block, block, 0, 0, block, block);
-              row.append($('<img>').attr('src', canvas.toDataURL()));
-            }
+          if (options.pois) {
+            _(drawnPath).each(function(p, i) {
+              if (!p._bend) {
+                targetCtx.save();
+                targetCtx.fillStyle = colors.marker;
+                targetCtx.fillRect(p.x - (lineThickness / 200), p.y - (lineThickness / 200), lineThickness / 100, lineThickness / 100);
+                targetCtx.restore();
+              }
+            })
           }
 
-          holder.append(innerHolder);
+          targetCtx.restore();
+
+          if (options.append) {
+            var innerHolder = $('<div>').addClass(options.class);
+            //break the canvas into pieces
+            var block = (targetCanvas[0].width / self.breaks);
+            for (var c = 0; c < self.breaks; c++) {
+              var row = $('<div class="tile-holder">');
+              innerHolder.append(row);
+              for (var r = 0; r < self.breaks; r++) {
+                var canvas = document.createElement('canvas');
+                canvas.height = block;
+                canvas.width = block;
+                canvas.getContext('2d').drawImage(targetCanvas[0], r * block, c * block, block, block, 0, 0, block, block);
+                row.append($('<img>').attr('src', canvas.toDataURL()));
+              }
+            }
+
+            holder.append(innerHolder);
+          }
           return innerHolder;
         };
 
-        self.generateIsland = function(x, y, size) {
+        self.generateIsland = function(x, y, size, roadPoints, overSeed) {
+          seed = overSeed;
 
           var islandData = {
-            roadPath: []
+            roadPath: [],
+            seed: overSeed,
+            roadPoints: roadPoints
           };
 
           var center = new Victor(x, y);
-          seed = self.seed;
-          if (self.random) {
-            seed = self.seed = Math.random();
-          }
 
           islandData.coastLine = (function defineCoast() {
             var outterPath = [];
@@ -235,6 +238,7 @@ angular.module('islandApp')
               var vic = new Victor(0, 1)
                 .rotate(Math.PI * 2 * (i / self.outterPoints))
                 .multiplyScalar((size / 2) * randomBetween(self.lowerBound, self.higherBound))
+                //.multiplyScalar((size / 2) )
                 .add(center);
 
 
@@ -242,7 +246,8 @@ angular.module('islandApp')
               if (outterPath.length) {
                 for (var j = 0; j < 2; j++) {
                   var last = _(outterPath).last().clone();
-                  var middle = getMiddlePoint(last, vic).rotateDeg(randomBetween(-self.coastVar / 5, self.coastVar / 5));
+                  //var middle = getMiddlePoint(last, vic).rotateDeg(randomBetween(-self.coastVar / 5, self.coastVar / 5));
+                  var middle = getMiddlePoint(last, vic).add(last.clone().subtract(vic).multiplyScalar(0.5).rotateDeg(randomBetween(-30, 30)))
                   outterPath.push(middle);
                 }
               }
@@ -266,9 +271,9 @@ angular.module('islandApp')
             islandData.drawnPath = (function defineRoads() {
               islandData.roadPath = [];
               //Inner Path
-              for (var i = 0; i < self.roadPoints; i++) {
+              for (var i = 0; i < roadPoints; i++) {
                 //determine which coastline points you are between and select the one with the smaller distance from center
-                var angle = ((i) / self.roadPoints) * Math.PI * 2;
+                var angle = ((i) / roadPoints) * Math.PI * 2;
 
                 //create a vector rotated & scaled to somewhere on that length
                 var p = new Victor(0, 1)
@@ -326,29 +331,111 @@ angular.module('islandApp')
           return islandData;
         }
 
-        self.drawIsland = function(islandData){
-          holder.empty();
-          canvasSize = self.size + self.margin;
+        // self.drawIsland = function(islandData, targetCanvas) {
+        //   holder.empty();
+        //   canvasSize = self.size + self.margin;
+        //
+        //   if (self.map) {
+        //     //create a second overlay canvas
+        //     var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
+        //     var targetCtx = targetCanvas[0].getContext('2d');
+        //     var innerHolder = drawMaps(islandData.coastLine, islandData.drawnPath, self.size, mapColors, targetCanvas, targetCtx, holder, {
+        //       road: true,
+        //       smooth: true,
+        //       class: 'map-overlay'
+        //     })
+        //
+        //     self.paper = innerHolder.oriDomi({
+        //       vPanels: 6
+        //     }).oriDomi(true);
+        //     self.paper.accordion(0, 'right');
+        //   }
+        // }
+        var holder = $element.find('#map-holder')
+        holder.empty();
+        var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
+        var targetCtx = targetCanvas[0].getContext('2d');
 
-          var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
-          var targetCtx = targetCanvas[0].getContext('2d');
-          drawMaps(islandData.coastLine, islandData.drawnPath, self.size, testColors, targetCanvas, targetCtx, holder, {road: true, smooth: false, class: 'island-overlay'})
+        var islands = {
+          children: [],
+          value: self.size * 0.5,
+        };
 
-          if(self.map){
-            //create a second overlay canvas
-            var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
-            var targetCtx = targetCanvas[0].getContext('2d');
-            var innerHolder = drawMaps(islandData.coastLine, islandData.drawnPath, self.size, mapColors, targetCanvas, targetCtx, holder, {road: true, smooth: true, class: 'map-overlay'})
+        var islandNum = 13;
+        var totalSize = self.size * 0.5;
 
-            self.paper = innerHolder.oriDomi({
-              vPanels: 6
-            }).oriDomi(true);
-            self.paper.accordion(0, 'right');
-          }
+        for (var i = 0; i < islandNum; i++) {
+          var size = Math.max(random() * (totalSize / 3), 10);
+          totalSize -= size;
+          islands.children.push({
+            value: size,
+            margin: 20,
+            seed: random(),
+            roadPoints: ~~(Math.random() * 30) + 1
+          });
         }
 
-        self.drawIsland(self.generateIsland(self.size * 0.5, self.size * 0.5, self.size));
-        //self.drawIsland(new Victor(100, 100), 100);
+        var pack = d3.pack()
+          .size([self.size, self.size])
+          //.nodes(x).shift().children;
+
+        self.islands = pack(d3.hierarchy(islands)).children;
+
+        var innerHolder;
+
+        self.islands.forEach(function(v, i) {
+
+          v.data = self.generateIsland(v.x, v.y, (v.r * 2) - 10, v.data.roadPoints, v.data.seed)
+
+          innerHolder = drawMaps(v.data.coastLine, v.data.drawnPath, self.lineThickness, mapColors, targetCanvas, targetCtx, holder, {
+            ocean: i == 0,
+            road: false,
+            smooth: true,
+            pois: true,
+            class: 'map-canvas',
+            append: i == (islandNum - 1)
+          })
+        })
+
+        self.paper = $('#map-holder').oriDomi({
+          vPanels: 6
+        }).oriDomi(true);
+        //self.paper.accordion(10, 'right');
+
+        self.openMap = function() {
+          $('#map-interaction-holder').show();
+          self.paper.accordion(0)
+        }
+
+        self.drawDetailIsland = function(index, openMap) {
+          if (self.paper && openMap) {
+            self.paper.accordion(80, 'right');
+            $('#map-interaction-holder').hide();
+          }
+
+          var holder = $element.find('#island-holder');
+          holder.empty();
+
+          $('.detail-overlay').remove();
+          var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
+          var targetCtx = targetCanvas[0].getContext('2d');
+
+          var island = self.generateIsland(self.size / 2, self.size / 2, self.size, self.islands[index].data.roadPoints, self.islands[index].data.seed)
+
+          drawMaps(island.coastLine, island.drawnPath, self.lineThickness * 2, realColors, targetCanvas, targetCtx, holder, {
+            ocean: true,
+            road: true,
+            smooth: true,
+            pois: true,
+            class: 'detail-overlay',
+            append: true
+          });
+        }
+
+        setTimeout(function() {
+          self.drawDetailIsland(0, false);
+
+        }, 100);
 
       }]
     };
