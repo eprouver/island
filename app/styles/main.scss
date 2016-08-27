@@ -2,6 +2,7 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 
 // bower:scss
 @import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
+
 // endbower
 /* color scheme: http://www.color-hex.com/color-palette/1523 */
 #island-scroller {
@@ -36,6 +37,13 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 #island-roadmap {
   position: relative;
   background: #0183A6;
+  .back-to-map {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 20vw;
+    height: 100vh;
+  }
   #map-position {
     transform: translateZ(1000px);
     .tile-holder img {
@@ -46,6 +54,10 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
     position: absolute;
     top: 0;
     left: 0;
+    .island-poi-marker {
+      position: absolute;
+      margin-left: -1.35em;
+    }
   }
   .map-canvas {
     border: 5px solid #E2C792;
@@ -53,14 +65,16 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
   }
   .positioning-holder {
     position: relative;
+    pointer-events: none;
     .map-overlay {
       position: absolute;
       top: 0;
       left: 0;
+      pointer-events: auto;
     }
     .island-selector {
       position: absolute;
-      cursor:pointer;
+      cursor: pointer;
       .island-name {
         position: absolute;
         padding: 0.5em;

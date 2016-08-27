@@ -16,7 +16,7 @@ angular.module('islandApp')
       controller: ['$scope', '$element', function($scope, $element) {
         var self = this;
         self.margin = 50;
-        self.size = window.innerHeight * 0.75;
+        self.size = window.innerHeight * 0.9;
         self.seed = Math.random();
         self.lowerBound = 0.125;
         self.higherBound = 0.95;
@@ -55,7 +55,7 @@ angular.module('islandApp')
           sand: '#354536',
           path: '#5e6a58',
           grass: '#c4ac7c',
-          marker: '#9e391a'
+          marker: 'yellow' //'#9e391a'
         }
 
         var roadMin = 0.4;
@@ -175,7 +175,7 @@ angular.module('islandApp')
               }
             }
 
-            targetCtx.closePath();
+            //targetCtx.closePath();
             targetCtx.lineWidth = (lineThickness / 200);
             targetCtx.strokeStyle = colors.path;
             targetCtx.stroke();
@@ -296,9 +296,11 @@ angular.module('islandApp')
             islandData.drawnPath = (function defineRoads() {
               islandData.roadPath = [];
               //Inner Path
+              var direction = (random() > 0.5) ? 1 : -1;
+
               for (var i = 0; i < roadPoints; i++) {
                 //determine which coastline points you are between and select the one with the smaller distance from center
-                var angle = ((i) / roadPoints) * Math.PI * 2;
+                var angle = ((i) / roadPoints) * Math.PI * 2 * direction;
 
                 //create a vector rotated & scaled to somewhere on that length
                 var p = new Victor(0, 1)
@@ -356,6 +358,8 @@ angular.module('islandApp')
           return islandData;
         }
 
+
+        var islandNum = ~~(random() * 10) + 1;
         var holder = $element.find('#map-holder')
         holder.empty();
         var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
@@ -366,7 +370,6 @@ angular.module('islandApp')
           value: self.size * 0.5,
         };
 
-        var islandNum = ~~(Math.random() * 20) + 1;
         var totalSize = self.size * 0.5;
 
         for (var i = 0; i < islandNum; i++) {
@@ -424,6 +427,8 @@ angular.module('islandApp')
             //$('.island-name').removeClass('animated fadeIn')
           }
 
+
+
           var holder = $element.find('#island-holder');
           holder.empty();
 
@@ -432,6 +437,7 @@ angular.module('islandApp')
           var targetCtx = targetCanvas[0].getContext('2d');
 
           var island = self.generateIsland(self.size / 2, self.size / 2, self.size, self.islands[index].data.roadPoints, self.islands[index].data.seed)
+          self.currentIsland = island;
 
           drawMaps(island.coastLine, island.drawnPath, self.lineThickness * 2, realColors, targetCanvas, targetCtx, holder, {
             ocean: true,

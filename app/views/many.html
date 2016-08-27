@@ -1,15 +1,19 @@
 <div id="island-roadmap">
-  <div id="island-detail-position" class="positioning-holder">
+  <div class="positioning-holder" id="island-detail-position">
     <div id="island-holder"></div>
+    <div class="map-overlay">
+      <div class="island-poi-marker animated bounceInDown" ng-repeat="p in islandCtrl.currentIsland.roadPath"
+      ng-style="{top: p.y, left: p.x, animationDelay: $index * 100 + 'ms'}">
+        &#9733;&#9733;&#9733;
+      </div>
+    </div>
   </div>
 
-  <div id="map-position" class="positioning-holder">
+  <div class="positioning-holder" id="map-position">
     <div id="map-holder"></div>
     <div class="map-overlay animated fadeIn" id="map-interaction-holder">
 
-      <div class="island-selector" ng-click="islandCtrl.drawDetailIsland($index, true)"
-      ng-repeat="t in islandCtrl.islands"
-      ng-style="{top: (t.y - t.r) + 'px', left: (t.x - t.r) + 'px', height: (t.r * 2) + 'px', width: (t.r * 2) + 'px'}">
+      <div class="island-selector" ng-click="islandCtrl.drawDetailIsland($index, true)" ng-repeat="t in islandCtrl.islands" ng-style="{top: (t.y - t.r) + 'px', left: (t.x - t.r) + 'px', height: (t.r * 2) + 'px', width: (t.r * 2) + 'px'}">
         <div class="island-name" ng-style="{fontSize: (t.r * islandCtrl.size * 0.0003) , left: (t.r * 0.15) + 'px'}">
           Island Name
         </div>
@@ -17,5 +21,5 @@
     </div>
   </div>
 
-  <button class="btn btn-info pull-right" ng-click="islandCtrl.openMap()">Show Map</button>
+  <div class="back-to-map" ng-click="islandCtrl.openMap()"></div>
 </div>
