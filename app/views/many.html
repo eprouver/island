@@ -2,9 +2,18 @@
   <div class="positioning-holder" id="island-detail-position">
     <div id="island-holder"></div>
     <div class="map-overlay">
-      <div class="island-poi-marker animated bounceInDown" ng-repeat="p in islandCtrl.currentIsland.roadPath"
-      ng-style="{top: p.y, left: p.x, animationDelay: $index * 100 + 'ms'}">
+      <div class="island-poi-marker animated bounceInDown" ng-repeat="p in islandCtrl.currentIsland.roadPath" ng-style="{top: p.y, left: p.x, animationDelay: $index * 100 + 'ms'}">
         &#9733;&#9733;&#9733;
+      </div>
+      <div class="island-info-area" id="island-detail-info">
+        <h1>Progress:</h1>
+
+        <div class="info-block" ng-repeat="p in islandCtrl.currentIsland.roadPath" ng-style="{animationDelay: (800 + (islandCtrl.currentIsland.roadPath.length * 100) + $index * 100) + 'ms'}">
+          <div class="is-rp-title">Title</div>
+          <div>
+            &#9733;&#9733;&#9733;
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -12,11 +21,23 @@
   <div class="positioning-holder" id="map-position">
     <div id="map-holder"></div>
     <div class="map-overlay animated fadeIn" id="map-interaction-holder">
-
-      <div class="island-selector" ng-click="islandCtrl.drawDetailIsland($index, true)" ng-repeat="t in islandCtrl.islands" ng-style="{top: (t.y - t.r) + 'px', left: (t.x - t.r) + 'px', height: (t.r * 2) + 'px', width: (t.r * 2) + 'px'}">
-        <div class="island-name" ng-style="{fontSize: (t.r * islandCtrl.size * 0.0003) , left: (t.r * 0.15) + 'px'}">
-          Island Name
+      <div class="island-info-area" id="map-info">
+        <h1>Progress:</h1>
+        <div ng-repeat="i in islandCtrl.islands">
+          <h1>Islands</h1>
         </div>
+      </div>
+
+      <div class="island-selector" ng-class="{'island-next': t.data.next}" ng-click="islandCtrl.drawDetailIsland($index, true)" ng-repeat="t in islandCtrl.islands" ng-style="{top: (t.y - t.r) + 'px', left: (t.x - t.r) + 'px', height: (t.r * 2) + 'px', width: (t.r * 2) + 'px'}">
+
+        <svg class="island-pencil" ng-if="t.data.next" viewBox="-1 -1 2 2">
+          <path d="M-0.7804761788805112,-0.6251855198259763 C-1.1255254603685592,-0.19442899044215542 -1.009865643807484,0.4887217939195442 -0.5673209869130216,0.8018347703076045 S0.7033857666192911,0.78655631834668 0.8719064294670723,0.3053380599708848 S0.7213120015235046,-0.7312232255207345 0.24355084644983518,-0.8656425969046302 S-0.8189843028287246,-0.5895034901897809 -0.8771509996541665,-0.10539067473071434" transform="rotate(44.59703649788346) scale(1, 0.7291994106235085)rotate(-44.59703649788346)"></path>
+        </svg>
+        <div class="island-name" ng-style="{fontSize: (t.r * islandCtrl.size * 0.0003) , left: (t.r * 0.15) + 'px'}">
+          Island
+          {{$index + 1}}
+        </div>
+
       </div>
     </div>
   </div>

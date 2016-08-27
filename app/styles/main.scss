@@ -34,9 +34,15 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
     }
   }
 }
+/************
+Real Example
+*************/
 #island-roadmap {
   position: relative;
   background: #0183A6;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   .back-to-map {
     position: fixed;
     top: 0;
@@ -66,11 +72,65 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
   .positioning-holder {
     position: relative;
     pointer-events: none;
+    .island-info-area {
+      text-align: center;
+      padding: 10px;
+      overflow-y: scroll;
+      max-height: 100%;
+      overflow-x: hidden;
+       &::-webkit-scrollbar {
+        width: 0;
+        /* remove scrollbar space */
+        background: transparent;
+        /* optional: just make scrollbar invisible */
+      }
+    }
+    #map-info {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40vw;
+      height: 100%;
+      color: #2F3D30;
+    }
+    #island-detail-info {
+      position: absolute;
+      top: 0;
+      right: 18vw;
+      width: 20vw;
+      height: 100%;
+      color: white;
+      text-shadow: 0 1px 0 #002D39;
+      .info-block {
+        padding: 0.5em;
+        background: #046D89;
+        width: 120%;
+        text-indent: -17%;
+        margin: 2px;
+        text-shadow: none;
+        position:relative;
+        animation: slideInRight 1s ease both;
+
+        &:before{
+          content: '';
+          position: absolute;
+          height: 1em;
+          width: 1em;
+          background: yellow;
+          left: -0.5em;
+          top: 50%;
+          margin-top: -0.5em;
+          border-radius: 1em;
+        }
+      }
+    }
     .map-overlay {
       position: absolute;
       top: 0;
       left: 0;
       pointer-events: auto;
+      width: 100vw;
+      height: 100vh;
     }
     .island-selector {
       position: absolute;
@@ -83,6 +143,22 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
         width: 100%;
         font-family: serif;
         pointer-events: none;
+      }
+      &.island-next {
+        .island-name {
+          font-weight: bold;
+        }
+      }
+      .island-pencil {
+        pointer-events: none;
+        position: absolute;
+        path {
+          stroke-width: 4px;
+          stroke: #9e391a;
+          stroke-linecap: round;
+          fill: none;
+          vector-effect: non-scaling-stroke;
+        }
       }
     }
   }

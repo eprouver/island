@@ -16,7 +16,7 @@ angular.module('islandApp')
       controller: ['$scope', '$element', function($scope, $element) {
         var self = this;
         self.margin = 50;
-        self.size = window.innerHeight * 0.9;
+        self.size = window.innerHeight- 24;
         self.seed = Math.random();
         self.lowerBound = 0.125;
         self.higherBound = 0.95;
@@ -359,7 +359,7 @@ angular.module('islandApp')
         }
 
 
-        var islandNum = ~~(random() * 10) + 1;
+        var islandNum = ~~(random() * 30) + 1;
         var holder = $element.find('#map-holder')
         holder.empty();
         var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
@@ -379,7 +379,8 @@ angular.module('islandApp')
             value: size,
             margin: 20,
             seed: random(),
-            roadPoints: ~~(Math.random() * 30) + 1
+            roadPoints: ~~(Math.random() * 30) + 1,
+            next: ( i == 0 )
           });
         }
 
@@ -394,9 +395,9 @@ angular.module('islandApp')
         //Draw the map (with all of the islands)
         self.islands.forEach(function(v, i) {
 
-          v.data = self.generateIsland(v.x, v.y, (v.r * 2) - 10, v.data.roadPoints, v.data.seed)
+          v.islandData = self.generateIsland(v.x, v.y, (v.r * 2) - 10, v.data.roadPoints, v.data.seed)
 
-          innerHolder = drawMaps(v.data.coastLine, v.data.drawnPath, self.lineThickness, mapColors, targetCanvas, targetCtx, holder, {
+          innerHolder = drawMaps(v.islandData.coastLine, v.islandData.drawnPath, self.lineThickness, mapColors, targetCanvas, targetCtx, holder, {
             ocean: i == 0,
             road: false,
             smooth: true,
@@ -436,7 +437,7 @@ angular.module('islandApp')
           var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
           var targetCtx = targetCanvas[0].getContext('2d');
 
-          var island = self.generateIsland(self.size / 2, self.size / 2, self.size, self.islands[index].data.roadPoints, self.islands[index].data.seed)
+          var island = self.generateIsland(self.size / 2, self.size / 2, self.size, self.islands[index].islandData.roadPoints, self.islands[index].data.seed)
           self.currentIsland = island;
 
           drawMaps(island.coastLine, island.drawnPath, self.lineThickness * 2, realColors, targetCanvas, targetCtx, holder, {
