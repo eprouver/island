@@ -16,8 +16,8 @@ angular.module('islandApp')
       controller: ['$scope', '$element', function($scope, $element) {
         var self = this;
         self.margin = 50;
-        self.size = 800;
-        self.seed = 1;
+        self.size = window.innerHeight * 0.75;
+        self.seed = Math.random();
         self.lowerBound = 0.125;
         self.higherBound = 0.95;
         self.breaks = 1;
@@ -186,8 +186,15 @@ angular.module('islandApp')
             _(drawnPath).each(function(p, i) {
               if (!p._bend) {
                 targetCtx.save();
+                // targetCtx.fillStyle = colors.marker;
+                // targetCtx.fillRect(p.x - (lineThickness / 200), p.y - (lineThickness / 200), lineThickness / 100, lineThickness / 100);
+
+                targetCtx.beginPath();
+                targetCtx.arc(p.x, p.y, lineThickness / 150, 0, 2 * Math.PI, false);
                 targetCtx.fillStyle = colors.marker;
-                targetCtx.fillRect(p.x - (lineThickness / 200), p.y - (lineThickness / 200), lineThickness / 100, lineThickness / 100);
+                targetCtx.fill();
+
+
                 targetCtx.restore();
               }
             })
@@ -195,7 +202,25 @@ angular.module('islandApp')
 
           targetCtx.restore();
 
+          if(options.connectIslands && self.islands.length > 1){
+            targetCtx.save();
+            targetCtx.beginPath();
+            targetCtx.moveTo(self.islands[0].x, self.islands[0].y);
+
+            self.islands.slice(1).forEach(function(v, i) {
+
+              targetCtx.lineTo(v.x, v.y);
+
+            });
+
+            targetCtx.lineWidth = lineThickness / 200;
+            targetCtx.strokeStyle = 'black';
+            targetCtx.stroke();
+            targetCtx.restore();
+          }
+
           if (options.append) {
+
             var innerHolder = $('<div>').addClass(options.class);
             //break the canvas into pieces
             var block = (targetCanvas[0].width / self.breaks);
@@ -331,26 +356,6 @@ angular.module('islandApp')
           return islandData;
         }
 
-        // self.drawIsland = function(islandData, targetCanvas) {
-        //   holder.empty();
-        //   canvasSize = self.size + self.margin;
-        //
-        //   if (self.map) {
-        //     //create a second overlay canvas
-        //     var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
-        //     var targetCtx = targetCanvas[0].getContext('2d');
-        //     var innerHolder = drawMaps(islandData.coastLine, islandData.drawnPath, self.size, mapColors, targetCanvas, targetCtx, holder, {
-        //       road: true,
-        //       smooth: true,
-        //       class: 'map-overlay'
-        //     })
-        //
-        //     self.paper = innerHolder.oriDomi({
-        //       vPanels: 6
-        //     }).oriDomi(true);
-        //     self.paper.accordion(0, 'right');
-        //   }
-        // }
         var holder = $element.find('#map-holder')
         holder.empty();
         var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
@@ -361,7 +366,7 @@ angular.module('islandApp')
           value: self.size * 0.5,
         };
 
-        var islandNum = 13;
+        var islandNum = ~~(Math.random() * 20) + 1;
         var totalSize = self.size * 0.5;
 
         for (var i = 0; i < islandNum; i++) {
@@ -383,6 +388,7 @@ angular.module('islandApp')
 
         var innerHolder;
 
+        //Draw the map (with all of the islands)
         self.islands.forEach(function(v, i) {
 
           v.data = self.generateIsland(v.x, v.y, (v.r * 2) - 10, v.data.roadPoints, v.data.seed)
@@ -393,7 +399,8 @@ angular.module('islandApp')
             smooth: true,
             pois: true,
             class: 'map-canvas',
-            append: i == (islandNum - 1)
+            append: i == (islandNum - 1),
+            connectIslands: false
           })
         })
 
@@ -403,7 +410,10 @@ angular.module('islandApp')
         //self.paper.accordion(10, 'right');
 
         self.openMap = function() {
-          $('#map-interaction-holder').show();
+          setTimeout(function() {
+            $('#map-interaction-holder').show();
+            //$('.island-name').addClass('animated fadeIn')
+          }, 800)
           self.paper.accordion(0)
         }
 
@@ -411,6 +421,7 @@ angular.module('islandApp')
           if (self.paper && openMap) {
             self.paper.accordion(80, 'right');
             $('#map-interaction-holder').hide();
+            //$('.island-name').removeClass('animated fadeIn')
           }
 
           var holder = $element.find('#island-holder');

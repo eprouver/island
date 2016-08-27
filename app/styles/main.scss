@@ -3,9 +3,7 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 // bower:scss
 @import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
 // endbower
-
 /* color scheme: http://www.color-hex.com/color-palette/1523 */
-
 #island-scroller {
   width: 100%;
   height: 80vh;
@@ -35,40 +33,46 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
     }
   }
 }
-
-#island-roadmap{
-  position:relative;
+#island-roadmap {
+  position: relative;
   background: #0183A6;
   #map-position {
     transform: translateZ(1000px);
+    .tile-holder img {
+      border: 1px dashed #A29670;
+    }
   }
   #island-detail-position {
     position: absolute;
     top: 0;
     left: 0;
   }
-
-  .map-canvas{
+  .map-canvas {
     border: 5px solid #E2C792;
     background: #c4ac7c;
   }
-
-  .positioning-holder{
-    position:relative;
-
-    .map-overlay{
-      position:absolute;
-      top:0;
+  .positioning-holder {
+    position: relative;
+    .map-overlay {
+      position: absolute;
+      top: 0;
       left: 0;
     }
-
-    .island-selector{
-      position:absolute;
+    .island-selector {
+      position: absolute;
+      cursor:pointer;
+      .island-name {
+        position: absolute;
+        padding: 0.5em;
+        text-align: center;
+        color: #273728;
+        width: 100%;
+        font-family: serif;
+        pointer-events: none;
+      }
     }
   }
-
-  .oridomi-active{
+  .oridomi-active {
     pointer-events: none;
   }
-
 }
