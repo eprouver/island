@@ -16,7 +16,7 @@ angular.module('islandApp')
       controller: ['$scope', '$element', function($scope, $element) {
         var self = this;
         self.margin = 50;
-        self.size = window.innerHeight- 24;
+        self.size = window.innerHeight - 24;
         self.seed = Math.random();
         self.lowerBound = 0.125;
         self.higherBound = 0.95;
@@ -31,14 +31,14 @@ angular.module('islandApp')
         self.map = false;
         self.lineThickness = self.size / 2;
 
-        var testColors = {
-          ocean: 'white',
-          water: 'white',
-          sand: 'black',
-          path: '#ccc',
-          grass: 'white',
-          marker: 'black'
-        }
+        // var testColors = {
+        //   ocean: '#000',
+        //   water: '#222',
+        //   sand: '#444',
+        //   path: '#666',
+        //   grass: '#888',
+        //   marker: '#aaa'
+        // }
 
         var realColors = {
           ocean: '#0183A6',
@@ -46,7 +46,9 @@ angular.module('islandApp')
           sand: '#F4F784',
           path: '#f5941d',
           grass: '#53990c',
-          marker: 'white'
+          marker: 'white',
+          startColor: '#80FF00',
+          endColor: '#DB2A2A'
         }
 
         var mapColors = {
@@ -186,15 +188,21 @@ angular.module('islandApp')
             _(drawnPath).each(function(p, i) {
               if (!p._bend) {
                 targetCtx.save();
-                // targetCtx.fillStyle = colors.marker;
-                // targetCtx.fillRect(p.x - (lineThickness / 200), p.y - (lineThickness / 200), lineThickness / 100, lineThickness / 100);
 
                 targetCtx.beginPath();
                 targetCtx.arc(p.x, p.y, lineThickness / 150, 0, 2 * Math.PI, false);
                 targetCtx.fillStyle = colors.marker;
+
+                if (options.direction) {
+                  if (i == 0) {
+                    targetCtx.fillStyle = colors.startColor;
+                  }
+                  if (i == drawnPath.length - 1) {
+                    targetCtx.fillStyle = colors.endColor;
+                  }
+                }
+
                 targetCtx.fill();
-
-
                 targetCtx.restore();
               }
             })
@@ -202,7 +210,7 @@ angular.module('islandApp')
 
           targetCtx.restore();
 
-          if(options.connectIslands && self.islands.length > 1){
+          if (options.connectIslands && self.islands.length > 1) {
             targetCtx.save();
             targetCtx.beginPath();
             targetCtx.moveTo(self.islands[0].x, self.islands[0].y);
@@ -359,7 +367,7 @@ angular.module('islandApp')
         }
 
 
-        var islandNum = ~~(random() * 30) + 1;
+        var islandNum = ~~(random() * 20) + 1;
         var holder = $element.find('#map-holder')
         holder.empty();
         var targetCanvas = $('<canvas height="' + (canvasSize) + '" width="' + (canvasSize) + '"></canvas>');
@@ -372,6 +380,8 @@ angular.module('islandApp')
 
         var totalSize = self.size * 0.5;
 
+        var next = ~~(Math.random() * islandNum)
+
         for (var i = 0; i < islandNum; i++) {
           var size = Math.max(random() * (totalSize / 3), 10);
           totalSize -= size;
@@ -380,7 +390,7 @@ angular.module('islandApp')
             margin: 20,
             seed: random(),
             roadPoints: ~~(Math.random() * 30) + 1,
-            next: ( i == 0 )
+            next: (i == next)
           });
         }
 
@@ -414,6 +424,7 @@ angular.module('islandApp')
         //self.paper.accordion(10, 'right');
 
         self.openMap = function() {
+          $('.island-info-area').scrollTop(0);
           setTimeout(function() {
             $('#map-interaction-holder').show();
             //$('.island-name').addClass('animated fadeIn')
@@ -423,12 +434,11 @@ angular.module('islandApp')
 
         self.drawDetailIsland = function(index, openMap) {
           if (self.paper && openMap) {
-            self.paper.accordion(80, 'right');
+            self.paper.accordion(83, 'right');
             $('#map-interaction-holder').hide();
+            $('.island-info-area').scrollTop(0);
             //$('.island-name').removeClass('animated fadeIn')
           }
-
-
 
           var holder = $element.find('#island-holder');
           holder.empty();
@@ -446,7 +456,9 @@ angular.module('islandApp')
             smooth: true,
             pois: true,
             class: 'detail-overlay',
-            append: true
+            append: true,
+            direction: true,
+            finished: 3
           });
         }
 

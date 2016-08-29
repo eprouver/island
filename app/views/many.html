@@ -2,6 +2,7 @@
   <div class="positioning-holder" id="island-detail-position">
     <div id="island-holder"></div>
     <div class="map-overlay">
+      <h1 id="island-detail-title"></h1>
       <div class="island-poi-marker animated bounceInDown" ng-repeat="p in islandCtrl.currentIsland.roadPath" ng-style="{top: p.y, left: p.x, animationDelay: $index * 100 + 'ms'}">
         &#9733;&#9733;&#9733;
       </div>
@@ -9,10 +10,31 @@
         <h1>Progress:</h1>
 
         <div class="info-block" ng-repeat="p in islandCtrl.currentIsland.roadPath" ng-style="{animationDelay: (800 + (islandCtrl.currentIsland.roadPath.length * 100) + $index * 100) + 'ms'}">
-          <div class="is-rp-title">Title</div>
-          <div>
-            &#9733;&#9733;&#9733;
+
+          <div class="row">
+            <div class="col-xs-3">
+              <div>
+                &#9733;&#9733;&#9733;
+              </div>
+            </div>
+            <div class="col-xs-9">
+              <div class="is-rp-title">Some long title that might be too long for this</div>
+            </div>
           </div>
+
+          <div class="row">
+            <div class="col-xs-7">
+              <div class="btn btn-block btn-success">
+                Let's Go!
+              </div>
+            </div>
+            <div class="col-xs-5">
+              <div class="btn btn-block btn-info hide">
+                Continue
+              </div>
+            </div>
+          </div>
+          <br/>
         </div>
       </div>
     </div>
@@ -22,9 +44,9 @@
     <div id="map-holder"></div>
     <div class="map-overlay animated fadeIn" id="map-interaction-holder">
       <div class="island-info-area" id="map-info">
-        <h1>Progress:</h1>
-        <div ng-repeat="i in islandCtrl.islands">
-          <h1>Islands</h1>
+        <div class="info-block" ng-repeat="i in islandCtrl.islands" ng-click="islandCtrl.drawDetailIsland($index, true)">
+          <h2>Island {{$index + 1}}</h2>
+          <p>Stars Left: Number</p>
         </div>
       </div>
 
@@ -39,6 +61,7 @@
         </div>
 
       </div>
+      <div class="map-name">Learning Track Name</div>
     </div>
   </div>
 
