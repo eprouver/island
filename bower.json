@@ -8,7 +8,8 @@
     "jquery": "^3.1.0",
     "underscore": "^1.8.3",
     "iscroll": "^5.2.0",
-    "oridomi": "^1.1.5"
+    "oridomi": "^1.1.5",
+    "d3": "^3.4.13"
   },
   "devDependencies": {
     "angular-mocks": "^1.4.0"

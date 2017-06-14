@@ -1,13 +1,22 @@
 <div>
+  <img src="images/rm-flag.png" id="rm-finish-flag" class="hide" />
+  <img src="images/rm-house.png" id="rm-house" class="hide" />
+  <img src="images/rm-water.png" id="rm-water" class="hide" />
+  <img src="images/rm-volc.png" id="rm-mount" class="hide" />
 
   <div class="row">
     <div class="col-xs-8">
       <div id="island-scroller">
         <div ng-style="{transform: 'scale('+islandCtrl.zoom+')'}">
           <div id="island-holder" ng-style="{width: (islandCtrl.size + islandCtrl.margin) + 'px'}"></div>
-          <!-- <div class="poi-marker" ng-repeat="p in islandCtrl.roadPath" ng-style="{transform: 'translate3d('+p.x+'px, '+p.y+'px, 0)', fontSize: (1 / islandCtrl.zoom)+'em'}">
-            X
-          </div> -->
+
+          <div class="poi-holder">
+            <div ng-repeat="i in islandCtrl.islands">
+              <div class="island-poi-marker animated bounceInDown" ng-repeat="p in i.islandData.roadPath" ng-style="{top: p.y, left: p.x}">
+                {{p.poi.topicName }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -80,7 +89,7 @@
         </label>
       </div>
 
-      <div class="btn btn-lg btn-success" ng-click="islandCtrl.drawIsland(islandCtrl.generateIsland(islandCtrl.size / 2, islandCtrl.size / 2, islandCtrl.size))">
+      <div class="btn btn-lg btn-success" ng-click="islandCtrl.drawIsland()">
         Redraw
       </div>
     </div>

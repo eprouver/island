@@ -18,6 +18,7 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
   }
   #island-holder {
     transform-origin: 0 0;
+    overflow: scroll;
     .map-overlay {
       transform: translateZ(1000px);
     }
@@ -30,8 +31,11 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
   .tile-holder {
     white-space: nowrap;
     line-height: 0;
-    img {
-      border: 1px solid #ccc;
-    }
   }
+}
+
+.island-poi-marker{
+  position:absolute;
+  margin-top: -1em;
+  margin-left: -1em;
 }
