@@ -4,7 +4,7 @@ angular.module('islandApp')
   .directive('islandPixel', function() {
 
     return {
-      templateUrl: '/views/island.html',
+      templateUrl: 'views/island.html',
       restrict: 'E',
       replace: true,
       scope: {
