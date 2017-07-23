@@ -15,9 +15,9 @@ angular.module('islandApp')
 
         var self = this;
         self.margin = 50;
-        self.size = window.innerWidth * 1.25;
+        self.size = window.innerWidth * 0.75 ;
         self.seed = 1;
-        self.lowerBound = 0.25;
+        self.lowerBound = 0.35;
         self.higherBound = 1;
         self.margin = 10;
         self.outterPoints = 10;
@@ -27,9 +27,9 @@ angular.module('islandApp')
         self.scaler = 1;
         self.zoom = 1;
         self.map = false;
-        self.lineThickness = self.size * 0.7;
+        self.lineThickness = self.size;
         self.islandNum = 2;
-        self.empties = 1;
+        self.empties = 0;
 
         // var testColors = {
         //   ocean: '#000',
@@ -438,10 +438,8 @@ angular.module('islandApp')
           return islandData;
         }
 
-
-
         self.drawIsland = function() {
-          self.empties = ~~(random() * 6);
+          self.empties = 0;
           var holder = $element.find('#island-holder');
           self.islandNum = $scope.progressService.currentTopics.length + self.empties;
           holder.empty();

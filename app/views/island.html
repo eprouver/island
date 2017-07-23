@@ -13,7 +13,7 @@
           <div class="poi-holder">
             <div ng-repeat="i in islandCtrl.islands">
               <div class="island-poi-marker animated bounceInDown" ng-repeat="p in i.islandData.roadPath" ng-style="{top: p.y, left: p.x}">
-                {{p.poi.topicName }}
+                <!-- {{p.poi.topicName }} -->
               </div>
             </div>
           </div>
@@ -21,6 +21,7 @@
       </div>
     </div>
     <div class="col-xs-4">
+      <div class="hide">
       <h2>Options</h2>
       <div class="">
         <label>Size
@@ -88,7 +89,9 @@
 
         </label>
       </div>
+    </div>
 
+      <h2>Actions</h2>
       <div class="btn btn-lg btn-success" ng-click="islandCtrl.drawIsland()">
         Redraw
       </div>
